@@ -1,19 +1,27 @@
-// adapt ui height and stuff
+// TODO: INCLUDE SET BONUSES!!
+// TODO: USE RAW ATTRIBUTS IN THE JSON TO MATCH THE AFFIXES
 
-var damage = $(".attributes-core.secondary").children("li:first").children("span:last").text();
+var damage = 0;
 var slots = ["head", "torso", "feet", "hands", "shoulders", "legs", "bracers", "mainHand", "offHand", "waist", "rightFinger", "leftFinger", "neck"];
 
-var fireDmg = 0;
-var iceDmg = 0;
-var lightDmg = 0;
-var physicalDmg = 0;
-var poisonDmg = 0;
-var holyDmg = 0;
-var arcaneDmg = 0;
+var fireDmg;
+var iceDmg;
+var lightDmg;
+var physicalDmg;
+var poisonDmg;
+var holyDmg;
+var arcaneDmg;
+var eliteDmg;
 
 function extractDmg(attribute)
 {
     dmg = attribute.split(' ')[3];
+    return parseInt(dmg.substring(0, dmg.length - 1));
+}
+
+function extractEliteDmg(attribute)
+{
+    dmg = attribute.split(' ')[5];
     return parseInt(dmg.substring(0, dmg.length - 1));
 }
 
@@ -25,7 +33,10 @@ function updateNumbers()
     {
         var elementalMult = 1 + Math.max(fireDmg, iceDmg, lightDmg, physicalDmg, poisonDmg, holyDmg, arcaneDmg) / 100.0;
 
-        $(".attributes-core.secondary").height(104).prepend('<li class="tip"><span class="label">Elemental Damage</span><span class="value">' + Math.round(damage * elementalMult)  + '</span></li>');
+        var eliteElementalMult = 1 + eliteDmg / 100.0;
+
+        $(".attributes-core.secondary").prepend('<li class="tip"><span class="label">Elemental Elite Damage</span><span class="value">' + Math.round(damage * eliteElementalMult * elementalMult)  + '</span></li>');
+        $(".attributes-core.secondary").height(130).prepend('<li class="tip"><span class="label">Elemental Damage</span><span class="value">' + Math.round(damage * elementalMult)  + '</span></li>');
     }
 }
 
@@ -68,6 +79,10 @@ function parseSlot(slot)
                 {
                     arcaneDmg += extractDmg(data.attributes.primary[i].text);
                 }
+                if(data.attributes.primary[i].text.indexOf("Increases damage against elites by ") != -1)
+                {
+                    eliteDmg += extractEliteDmg(data.attributes.primary[i].text);
+                }
             }
     
             updateNumbers();
@@ -89,6 +104,10 @@ function parseSlots()
     poisonDmg = 0;
     holyDmg = 0;
     arcaneDmg = 0;
+
+    eliteDmg = 0;
+
+    damage = $(".attributes-core.secondary").children("li:first").children("span:last").text();
 
     for(var i = 0; i < slots.length; i++)
     {

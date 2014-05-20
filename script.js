@@ -9,6 +9,7 @@ var lightDmg = 0;
 var physicalDmg = 0;
 var poisonDmg = 0;
 var holyDmg = 0;
+var arcaneDmg = 0;
 
 function extractDmg(attribute)
 {
@@ -22,7 +23,7 @@ function updateNumbers()
     parsedSlots++;
     if(parsedSlots == slots.length)
     {
-        var elementalMult = 1 + Math.max(fireDmg, iceDmg, lightDmg, physicalDmg, poisonDmg, holyDmg) / 100.0;
+        var elementalMult = 1 + Math.max(fireDmg, iceDmg, lightDmg, physicalDmg, poisonDmg, holyDmg, arcaneDmg) / 100.0;
 
         $(".attributes-core.secondary").height(104).prepend('<li class="tip"><span class="label">Elemental Damage</span><span class="value">' + Math.round(damage * elementalMult)  + '</span></li>');
     }
@@ -30,7 +31,6 @@ function updateNumbers()
 
 function parseSlot(slot)
 {
-    //TODO: MAY NOT ALWAYS BE PRIMARY. CHECK FOR SET BONUSES (TAL) AND TRIUMVIRATE STUFF
     var slotElt = $("li.slot-" + slot).children(".slot-link");
 
     if(slotElt.length != 0)
@@ -64,6 +64,10 @@ function parseSlot(slot)
                 {
                     holyDmg += extractDmg(data.attributes.primary[i].text);
                 }
+                if(data.attributes.primary[i].text.indexOf("Arcane skills deal ") != -1)
+                {
+                    arcaneDmg += extractDmg(data.attributes.primary[i].text);
+                }
             }
     
             updateNumbers();
@@ -84,6 +88,7 @@ function parseSlots()
     physicalDmg = 0;
     poisonDmg = 0;
     holyDmg = 0;
+    arcaneDmg = 0;
 
     for(var i = 0; i < slots.length; i++)
     {

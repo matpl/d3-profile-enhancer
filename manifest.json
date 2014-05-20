@@ -7,7 +7,7 @@
 
   "content_scripts": [
     {
-      "matches": ["http://us.battle.net/d3/en/profile/*"],
+      "matches": ["http://*.battle.net/d3/en/profile/*"],
       "js": ["jquery.js", "script.js"]
     }
   ],

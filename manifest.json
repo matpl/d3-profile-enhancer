@@ -1,0 +1,18 @@
+{
+  "manifest_version": 2,
+
+  "name": "d3 profile enhancer",
+  "description": "blablabla.",
+  "version": "1.0",
+
+  "content_scripts": [
+    {
+      "matches": ["http://us.battle.net/d3/en/profile/*"],
+      "js": ["jquery.js", "script.js"]
+    }
+  ],
+
+  "web_accessible_resources": [
+    "override.js"
+  ]
+}

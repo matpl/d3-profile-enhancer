@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
 
-  "name": "d3 profile enhancer",
-  "description": "blablabla.",
+  "name": "diablo 3 profile enhancer",
+  "description": "This simple extension adds your elemental damage and elemental elite damage to your official diablo 3 profile page. This way, you don't have to calculate it yourself or visit other sites!",
   "version": "1.0",
 
   "content_scripts": [

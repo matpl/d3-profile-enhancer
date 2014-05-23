@@ -12,7 +12,7 @@
 
   "content_scripts": [
     {
-      "matches": ["http://*.battle.net/d3/*/profile/*"],
+      "matches": ["http://*.battle.net/d3/*/profile/*", "https://*.battle.net/d3/*/profile/*"],
       "js": ["jquery.js", "script.js"]
     }
   ],

@@ -34,22 +34,22 @@ function extractEliteDmg(attribute)
 function updateSetBonuses()
 {
     for(var i = 0; i < setNames.length; i++)
-	{
-	    if(hasRROG && setCounts[i] > 1)
-		{
-		    setCounts[i] = setCounts[i] + 1;
-		}
-		
-		// parse the ranks
-		for(var j = 0; j < setBonuses[i].length; j++)
-		{
-		    if(setCounts[i] >= setBonuses[i][j].required)
-			{
-			    // we apply the bonus if it's something meaningful
-			    parseAttributes(setBonuses[i][j].attributesRaw);
-			}
-		}
-	}
+    {
+        if(hasRROG && setCounts[i] > 1)
+        {
+            setCounts[i] = setCounts[i] + 1;
+        }
+        
+        // parse the ranks
+        for(var j = 0; j < setBonuses[i].length; j++)
+        {
+            if(setCounts[i] >= setBonuses[i][j].required)
+            {
+                // we apply the bonus if it's something meaningful
+                parseAttributes(setBonuses[i][j].attributesRaw);
+            }
+        }
+    }
 }
 
 function updateNumbers()
@@ -57,8 +57,8 @@ function updateNumbers()
     parsedSlots++;
     if(parsedSlots == slots.length)
     {
-	    updateSetBonuses();
-	
+        updateSetBonuses();
+    
         var elementalMult = 1 + Math.max(fireDmg, coldDmg, lightDmg, physicalDmg, poisonDmg, holyDmg, arcaneDmg);
 
         var eliteElementalMult = 1 + eliteDmg;
@@ -71,37 +71,37 @@ function updateNumbers()
 function parseAttributes(attributesRaw)
 {
     if(attributesRaw[ELEMENT_PREFIX + "Fire"] != null)
-	{
-		fireDmg += attributesRaw[ELEMENT_PREFIX + "Fire"].min;
-	}
-	if(attributesRaw[ELEMENT_PREFIX + "Cold"] != null)
-	{
-		coldDmg += attributesRaw[ELEMENT_PREFIX + "Cold"].min;
-	}
-	if(attributesRaw[ELEMENT_PREFIX + "Lightning"] != null)
-	{
-		lightDmg += attributesRaw[ELEMENT_PREFIX + "Lightning"].min;
-	}
-	if(attributesRaw[ELEMENT_PREFIX + "Physical"] != null)
-	{
-		physicalDmg += attributesRaw[ELEMENT_PREFIX + "Physical"].min;
-	}
-	if(attributesRaw[ELEMENT_PREFIX + "Poison"] != null)
-	{
-		poisonDmg += attributesRaw[ELEMENT_PREFIX + "Poison"].min;
-	}
-	if(attributesRaw[ELEMENT_PREFIX + "Holy"] != null)
-	{
-		holyDmg += attributesRaw[ELEMENT_PREFIX + "Holy"].min;
-	}
-	if(attributesRaw[ELEMENT_PREFIX + "Arcane"] != null)
-	{
-		arcaneDmg += attributesRaw[ELEMENT_PREFIX + "Arcane"].min;
-	}
-	if(attributesRaw["Damage_Percent_Bonus_Vs_Elites"] != null)
-	{
-		eliteDmg += attributesRaw["Damage_Percent_Bonus_Vs_Elites"].min;
-	}
+    {
+        fireDmg += attributesRaw[ELEMENT_PREFIX + "Fire"].min;
+    }
+    if(attributesRaw[ELEMENT_PREFIX + "Cold"] != null)
+    {
+        coldDmg += attributesRaw[ELEMENT_PREFIX + "Cold"].min;
+    }
+    if(attributesRaw[ELEMENT_PREFIX + "Lightning"] != null)
+    {
+        lightDmg += attributesRaw[ELEMENT_PREFIX + "Lightning"].min;
+    }
+    if(attributesRaw[ELEMENT_PREFIX + "Physical"] != null)
+    {
+        physicalDmg += attributesRaw[ELEMENT_PREFIX + "Physical"].min;
+    }
+    if(attributesRaw[ELEMENT_PREFIX + "Poison"] != null)
+    {
+        poisonDmg += attributesRaw[ELEMENT_PREFIX + "Poison"].min;
+    }
+    if(attributesRaw[ELEMENT_PREFIX + "Holy"] != null)
+    {
+        holyDmg += attributesRaw[ELEMENT_PREFIX + "Holy"].min;
+    }
+    if(attributesRaw[ELEMENT_PREFIX + "Arcane"] != null)
+    {
+        arcaneDmg += attributesRaw[ELEMENT_PREFIX + "Arcane"].min;
+    }
+    if(attributesRaw["Damage_Percent_Bonus_Vs_Elites"] != null)
+    {
+        eliteDmg += attributesRaw["Damage_Percent_Bonus_Vs_Elites"].min;
+    }
 }
 
 var ELEMENT_PREFIX = "Damage_Dealt_Percent_Bonus#";
@@ -114,31 +114,31 @@ function parseSlot(slot)
     {
         var path = slotElt.attr("data-d3tooltip");
 
-        $.getJSON( "http://us.battle.net/api/d3/data/" + path, function( data ) {
-		
-		    if(data.id == "Unique_Ring_107_x1")
-			{
-			    hasRROG = true;
-			}
-		
-		    parseAttributes(data.attributesRaw);
-			
-			// set bonuses
-			if(data.set != null)
-			{
-				// we keep the set in a list with an increment
-				var index = setNames.indexOf(data.set.slug);
-				if(index != -1)
-				{
-					setCounts[index] = setCounts[index] + 1;
-				}
-				else
-				{
-					setNames.push(data.set.slug);
-					setBonuses.push(data.set.ranks);
-					setCounts.push(1);
-				}
-			}
+        $.getJSON( window.location.protocol + "//" + window.location.hostname + "/api/d3/data/" + path, function( data ) {
+        
+            if(data.id == "Unique_Ring_107_x1")
+            {
+                hasRROG = true;
+            }
+        
+            parseAttributes(data.attributesRaw);
+            
+            // set bonuses
+            if(data.set != null)
+            {
+                // we keep the set in a list with an increment
+                var index = setNames.indexOf(data.set.slug);
+                if(index != -1)
+                {
+                    setCounts[index] = setCounts[index] + 1;
+                }
+                else
+                {
+                    setNames.push(data.set.slug);
+                    setBonuses.push(data.set.ranks);
+                    setCounts.push(1);
+                }
+            }
     
             updateNumbers();
         });
@@ -152,9 +152,9 @@ function parseSlot(slot)
 function parseSlots()
 {
     setNames = [];
-	setCounts = [];
-	setBonuses = [];
-	hasRROG = false;
+    setCounts = [];
+    setBonuses = [];
+    hasRROG = false;
     parsedSlots = 0;
     fireDmg = 0.0;
     coldDmg = 0.0;
@@ -163,7 +163,7 @@ function parseSlots()
     poisonDmg = 0.0;
     holyDmg = 0.0;
     arcaneDmg = 0.0;
-	
+    
     eliteDmg = 0.0;
 
     damage = $(".attributes-core.secondary").children("li:first").children("span:last").text();

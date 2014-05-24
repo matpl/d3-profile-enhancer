@@ -15,9 +15,5 @@
       "matches": ["http://*.battle.net/d3/*/profile/*", "https://*.battle.net/d3/*/profile/*"],
       "js": ["jquery.js", "script.js"]
     }
-  ],
-
-  "web_accessible_resources": [
-    "override.js"
   ]
 }

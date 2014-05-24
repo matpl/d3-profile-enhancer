@@ -179,7 +179,7 @@ parseSlots();
 
 // override of the html jQuery function to know when a profile is loaded
 var s = document.createElement('script');
-s.src = chrome.extension.getURL('override.js');
+s.innerHTML = "$.fn.htmlOriginal = $.fn.html; $.fn.html = function (html) { if(html == null){var result = this.htmlOriginal();}else{var result = this.htmlOriginal(html);}if(html != null){try{var jHtml = $(html);if(jHtml.find('a.hero-tab').length > 0){document.dispatchEvent(new CustomEvent('loadProfileCallback'));}}catch(err) { }}return result;}";
 (document.head||document.documentElement).appendChild(s);
 s.onload = function() {
     s.parentNode.removeChild(s);

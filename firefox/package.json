@@ -1,0 +1,11 @@
+{
+  "name": "d3-profile-plus",
+  "title": "Diablo 3 profile +",
+  "id": "jid1-M4HE20OYnEIt5A",
+  "description": "This simple extension adds your elemental damage and elemental elite damage to your official diablo 3 profile page.",
+  "author": "Mathieu Plourde - mat.plourde@gmail.com",
+  "license": "GPL3",
+  "version": "1.0.1",
+  "icon": "data/icon_48x48.png",
+  "icon64": "data/icon_64x64.png"
+}

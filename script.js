@@ -1,4 +1,4 @@
-// TODO: ADD SET BONUSES TO THE DPS!!
+// TODO BEFORE RELEASE: SHOW THE REAL DAMAGE (WITH SET BONUSES), AND MAKE THE APPROPRIATE CALCULATIONS WITH DUAL WIELDING!!
 
 var damage = 0;
 var slots = ["head", "torso", "feet", "hands", "shoulders", "legs", "bracers", "mainHand", "offHand", "waist", "rightFinger", "leftFinger", "neck"];
@@ -8,8 +8,13 @@ var parsedSlots = 0;
 var setNames;
 var setBonuses;
 var setCounts;
-// if the player has a RROG, we increment the set count by 1 if it's at least at 2
-var hasRROG
+// if the player has a RORG, we increment the set count by 1 if it's at least at 2
+var hasRORG;
+// if the player is using 2 weapons, we increment the attack speed bonus by 15%
+var weaponCount;
+
+var mainStat;
+
 var fireDmg;
 var coldDmg;
 var lightDmg;
@@ -18,6 +23,15 @@ var poisonDmg;
 var holyDmg;
 var arcaneDmg;
 var eliteDmg;
+
+var baseCritChance;
+var baseCritDmg;
+var baseAtkSpeed;
+var baseMainStat;
+var bonusCritDmg;
+var bonusCritChance
+var bonusAtkSpeed;
+var bonusMainStat;
 
 function extractDmg(attribute)
 {
@@ -35,7 +49,7 @@ function updateSetBonuses()
 {
     for(var i = 0; i < setNames.length; i++)
     {
-        if(hasRROG && setCounts[i] > 1)
+        if(hasRORG && setCounts[i] > 1)
         {
             setCounts[i] = setCounts[i] + 1;
         }
@@ -46,7 +60,7 @@ function updateSetBonuses()
             if(setCounts[i] >= setBonuses[i][j].required)
             {
                 // we apply the bonus if it's something meaningful
-                parseAttributes(setBonuses[i][j].attributesRaw);
+                parseAttributes(setBonuses[i][j].attributesRaw, true);
             }
         }
     }
@@ -59,16 +73,20 @@ function updateNumbers()
     {
         updateSetBonuses();
     
+        // include the set bonuses from crit chance, crit dmg, atk speed and main stat
+        var baseDmg = damage / ((1 + baseCritChance * baseCritDmg) * (1 + baseAtkSpeed) * (1 + baseMainStat / 100.0));
+        var realDmg = baseDmg * (1 + (baseCritChance + bonusCritChance) * (baseCritDmg + bonusCritDmg)) * (1 + baseAtkSpeed+bonusAtkSpeed) * (1 + (baseMainStat + bonusMainStat) / 100.0);
+        
         var elementalMult = 1 + Math.max(fireDmg, coldDmg, lightDmg, physicalDmg, poisonDmg, holyDmg, arcaneDmg);
-
+        
         var eliteElementalMult = 1 + eliteDmg;
 
-        $(".attributes-core.secondary").prepend('<li class="tip"><span class="label">Elemental Elite Damage</span><span class="value">' + Math.round(damage * eliteElementalMult * elementalMult)  + '</span></li>');
-        $(".attributes-core.secondary").height(130).prepend('<li class="tip"><span class="label">Elemental Damage</span><span class="value">' + Math.round(damage * elementalMult)  + '</span></li>');
+        $(".attributes-core.secondary").prepend('<li class="tip"><span class="label">Elemental Elite Damage</span><span class="value">' + Math.round(realDmg * eliteElementalMult * elementalMult)  + '</span></li>');
+        $(".attributes-core.secondary").height(130).prepend('<li class="tip"><span class="label">Elemental Damage</span><span class="value">' + Math.round(realDmg * elementalMult)  + '</span></li>');
     }
 }
 
-function parseAttributes(attributesRaw)
+function parseAttributes(attributesRaw, isSetBonus)
 {
     if(attributesRaw[ELEMENT_PREFIX + "Fire"] != null)
     {
@@ -102,6 +120,51 @@ function parseAttributes(attributesRaw)
     {
         eliteDmg += attributesRaw["Damage_Percent_Bonus_Vs_Elites"].min;
     }
+    if(attributesRaw["Attacks_Per_Second_Percent"] != null)
+    {
+        if(isSetBonus)
+        {
+            bonusAtkSpeed += attributesRaw["Attacks_Per_Second_Percent"].min;
+        }
+        else
+        {
+            baseAtkSpeed += attributesRaw["Attacks_Per_Second_Percent"].min;
+        }
+    }
+    if(attributesRaw["Crit_Damage_Percent"] != null)
+    {
+        if(isSetBonus)
+        {
+            bonusCritDmg += attributesRaw["Crit_Damage_Percent"].min;
+        }
+        else
+        {
+            baseCritDmg += attributesRaw["Crit_Damage_Percent"].min;
+        }
+    }
+    if(attributesRaw["Crit_Percent_Bonus_Capped"] != null)
+    {
+        if(isSetBonus)
+        {
+            bonusCritChance += attributesRaw["Crit_Percent_Bonus_Capped"].min;
+        }
+        else
+        {
+            baseCritChance += attributesRaw["Crit_Percent_Bonus_Capped"].min;
+        }
+    }
+    if(isSetBonus)
+    {
+        // check for main stat
+        if(attributesRaw[mainStat + "_Item"] != null)
+        {
+            bonusMainStat += attributesRaw[mainStat + "_Item"].min;
+        }
+        else if(attributesRaw[mainStat] != null)
+        {
+            bonusMainStat += attributesRaw[mainStat].min;
+        }
+    }
 }
 
 var ELEMENT_PREFIX = "Damage_Dealt_Percent_Bonus#";
@@ -118,10 +181,19 @@ function parseSlot(slot)
         
             if(data.id == "Unique_Ring_107_x1")
             {
-                hasRROG = true;
+                hasRORG = true;
             }
         
-            parseAttributes(data.attributesRaw);
+            parseAttributes(data.attributesRaw, false);
+            
+            // gems
+            if(data.gems.length > 0)
+            {
+                for(var i = 0; i < data.gems.length; i++)
+                {
+                    parseAttributes(data.gems[i].attributesRaw, false);
+                }
+            }
             
             // set bonuses
             if(data.set != null)
@@ -154,7 +226,8 @@ function parseSlots()
     setNames = [];
     setCounts = [];
     setBonuses = [];
-    hasRROG = false;
+    hasRORG = false;
+    weaponCount = 0;
     parsedSlots = 0;
     fireDmg = 0.0;
     coldDmg = 0.0;
@@ -165,9 +238,39 @@ function parseSlots()
     arcaneDmg = 0.0;
     
     eliteDmg = 0.0;
-
+    
+    
+    baseCritChance = 0.05;
+    baseCritDmg = 0.5;
+    baseAtkSpeed = 0.0;
+    
+    // set items stuff
+    bonusCritDmg = 0.0;
+    bonusCritChance = 0.0;
+    bonusAtkSpeed = 0.0;
+    bonusMainStat = 0.0;
+    
     damage = $(".attributes-core.secondary").children("li:first").children("span:last").text();
-
+    
+    var characterClass = $("h2.class").text().split(" ").slice(1).join(" ").replace(/(\r\n|\n|\r)/gm,"").trim();
+    switch(characterClass)
+    {
+        case "Monk":
+        case "Demon Hunter":
+            mainStat = "Dexterity";
+            break;
+        case "Witch Doctor":
+        case "Wizard":
+            mainStat = "Intelligence";
+            break;
+        case "Barbarian":
+        case "Crusader":
+            mainStat = "Strength";
+            break;
+    }
+    
+    baseMainStat = parseInt($("li[data-tooltip=#tooltip-" + mainStat.toLowerCase() + "-hero]").find(".value").text());
+    
     for(var i = 0; i < slots.length; i++)
     {
         parseSlot(slots[i]);

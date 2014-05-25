@@ -1,4 +1,4 @@
-// TODO BEFORE RELEASE: SHOW THE REAL DAMAGE (WITH SET BONUSES), AND MAKE THE APPROPRIATE CALCULATIONS WITH DUAL WIELDING!!
+// TODO BEFORE RELEASE: SHOW THE REAL DAMAGE (WITH SET BONUSES), AND SHOW TOOLTIPS!! 
 
 var damage = 0;
 var slots = ["head", "torso", "feet", "hands", "shoulders", "legs", "bracers", "mainHand", "offHand", "waist", "rightFinger", "leftFinger", "neck"];
@@ -72,6 +72,12 @@ function updateNumbers()
     if(parsedSlots == slots.length)
     {
         updateSetBonuses();
+    
+        if(weaponCount > 1)
+        {
+            // dual wielding gives a 15% atk speed bonus
+            baseAtkSpeed += 0.15;
+        }
     
         // include the set bonuses from crit chance, crit dmg, atk speed and main stat
         var baseDmg = damage / ((1 + baseCritChance * baseCritDmg) * (1 + baseAtkSpeed) * (1 + baseMainStat / 100.0));
@@ -182,6 +188,12 @@ function parseSlot(slot)
             if(data.id == "Unique_Ring_107_x1")
             {
                 hasRORG = true;
+            }
+            
+            if(data.dps != null)
+            {
+                // this is a weapon
+                weaponCount++;
             }
         
             parseAttributes(data.attributesRaw, false);
